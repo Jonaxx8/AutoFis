@@ -39,14 +39,16 @@ class _MainScreen extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('AutoFis'),
-      ),
       body: FutureBuilder<void>(
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return CameraPreview(_controller);
+            return Stack(
+              fit: StackFit.expand, // Wrap with Stack to fill the whole screen
+              children: [
+                CameraPreview(_controller),
+              ],
+            );
           } else {
             return const Center(child: CircularProgressIndicator());
           }
@@ -56,6 +58,7 @@ class _MainScreen extends State<MainScreen> {
         onPressed: () async {
           try {
             await _initializeControllerFuture;
+            _controller.setFlashMode(FlashMode.off);
             final image = await _controller.takePicture();
 
             if (!mounted) return;
