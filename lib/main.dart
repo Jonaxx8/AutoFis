@@ -17,7 +17,7 @@ Future<void> main() async {
 
   runApp(
     ChangeNotifierProvider(create: (context) => CameraModel(cameras),
-      child: const MyApp(),
+      child: const MyApp(), 
     ),
   );
 }
