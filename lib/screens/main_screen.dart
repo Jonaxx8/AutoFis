@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:auto_fis/screens/display_image_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 // import 'package:permission_handler/permission_handler.dart';
 
 class MainScreen extends StatefulWidget {
@@ -39,11 +42,33 @@ class _MainScreen extends State<MainScreen> {
 
   final ImagePicker _picker = ImagePicker();
 
+  Future uploadImage(File imageFile) async {
+    const url = 'http://10.0.2.2:3000/upload-image';
+    
+    final request = http.MultipartRequest('POST', Uri.parse(url));
+    request.files.add(
+      http.MultipartFile.fromBytes(
+        'image',
+        imageFile.readAsBytesSync(),
+        filename: 'image.jpg',
+      ),
+    );
+    
+    final response = await request.send();
+    if (response.statusCode == 200) {
+      print('Image uploaded successfully');
+    } else {
+      print('Failed to upload image');
+    }
+  }
+
+
   Future getImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       // Do something with the picked image.
       // For example, you can display it or navigate to a new screen.
+      uploadImage(File(pickedFile.path));
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => DisplayImageScreen(
@@ -61,6 +86,8 @@ class _MainScreen extends State<MainScreen> {
       final image = await _controller.takePicture();
 
       if (!mounted) return;
+
+      uploadImage(File(image.path));
 
       await Navigator.of(context).push(
         MaterialPageRoute(
