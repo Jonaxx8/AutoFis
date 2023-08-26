@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:auto_fis/screens/display_image_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
@@ -43,8 +42,9 @@ class _MainScreen extends State<MainScreen> {
   final ImagePicker _picker = ImagePicker();
 
   Future uploadImage(File imageFile) async {
-    const url = 'http://10.0.2.2:3000/upload-image';
-    
+    print("uploading image");
+    const url = 'http://3.88.18.87:3000/upload-image';
+
     final request = http.MultipartRequest('POST', Uri.parse(url));
     request.files.add(
       http.MultipartFile.fromBytes(
@@ -53,15 +53,15 @@ class _MainScreen extends State<MainScreen> {
         filename: 'image.jpg',
       ),
     );
-    
+
     final response = await request.send();
+    print(response.stream);
     if (response.statusCode == 200) {
       print('Image uploaded successfully');
     } else {
       print('Failed to upload image');
     }
   }
-
 
   Future getImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
@@ -113,9 +113,18 @@ class _MainScreen extends State<MainScreen> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return Stack(
-              fit: StackFit.expand, // Wrap with Stack to fill the whole screen
               children: [
-                CameraPreview(_controller),
+                Positioned.fill(
+                  child: CameraPreview(_controller),
+                ),
+                // Positioned.fill(
+                //       child: BackdropFilter(
+                //         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                //         child: Container(
+                //           color: Colors.black.withOpacity(0.3), // Adjust the opacity as needed
+                //         ),
+                //       ),
+                //     ),
               ],
             );
           } else {
@@ -124,7 +133,7 @@ class _MainScreen extends State<MainScreen> {
         },
       ),
       floatingActionButton: Container(
-        margin: EdgeInsets.fromLTRB(screenWidth*0.16, 0, 0, 30),
+        margin: EdgeInsets.fromLTRB(screenWidth * 0.16, 0, 0, 30),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -133,7 +142,7 @@ class _MainScreen extends State<MainScreen> {
                 onPressed: getImage,
                 child: const Icon(Icons.photo)),
             Container(
-              margin: EdgeInsets.only(left: screenWidth*0.12),
+              margin: EdgeInsets.only(left: screenWidth * 0.12),
               width: 80,
               height: 80,
               child: FloatingActionButton(
